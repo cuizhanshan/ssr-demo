@@ -1,32 +1,40 @@
-const Vue = require('vue')
+const Vue = require('vue');
 const os = require('os')
-const server = require('express')()
-const renderer = require('vue-server-renderer').createRenderer()
+const server = require('express')();
+
+const template = require('fs').readFileSync('./index.template.html', 'utf-8');
+
+const renderer = require('vue-server-renderer').createRenderer({
+  template,
+});
+
+const context = {
+    title: 'vue ssr',
+    metas: `
+        <meta name="keyword" content="vue,ssr">
+        <meta name="description" content="vue srr demo">
+    `,
+};
 
 server.get('*', (req, res) => {
   const app = new Vue({
     data: {
       url: req.url
     },
-    template: `<div>访问的 URL 是： {{ url }}</div>`
-  })
+    template: `<div>访问的 URL 是： {{ url }}</div>`,
+  });
 
-  renderer.renderToString(app, (err, html) => {
+  renderer
+  .renderToString(app, context, (err, html) => {
+    console.log(html);
     if (err) {
       res.status(500).end('Internal Server Error')
-      return
+      return;
     }
-    res.set('content-type', "text/html");
-    res.end(`
-      <!DOCTYPE html>
-      <html lang="en">
-        <head><title>Hello</title></head>
-        <body>${html}</body>
-      </html>
-    `)
-  })
+    res.end(html);
+  });
 })
 
-server.listen(8080)
+server.listen(8080);
 console.log(`Server running at http://${os.hostname}:8080/`)
 // console.log(os)
