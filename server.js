@@ -1,4 +1,5 @@
 const Vue = require('vue')
+const os = require('os')
 const server = require('express')()
 const renderer = require('vue-server-renderer').createRenderer()
 
@@ -27,3 +28,5 @@ server.get('*', (req, res) => {
 })
 
 server.listen(8080)
+console.log(`Server running at http://${os.hostname}:8080/`)
+// console.log(os)
